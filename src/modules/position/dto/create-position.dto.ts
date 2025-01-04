@@ -23,7 +23,6 @@ export class CreatePositionDto {
     example: 100,
     description: 'La cantidad de la posición',
   })
-  @Min(0)
   @IsNotEmpty()
   quantity: number;
 

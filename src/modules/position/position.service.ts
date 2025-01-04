@@ -5,6 +5,7 @@ import { AccountService } from '../account/account.service';
 import { TickerService } from '../ticker/ticker.service';
 import { ClosePositionResponse, CreatePositionResponse, DeletePositionResponse, FindAllPositionsResponse } from './types/response';
 import { GeneralStatus, PositionStatus, Prisma } from '@prisma/client';
+import { FindAllPositionsDto } from './dto/find-all-positions.dto';
 
 @Injectable()
 export class PositionService {
@@ -49,18 +50,23 @@ export class PositionService {
     }
   }
 
-  async findAllPositions (userId: string): Promise<FindAllPositionsResponse> {
+  async findAllPositions (userId: string, query: FindAllPositionsDto): Promise<FindAllPositionsResponse> {
+    const where: Prisma.PositionWhereInput = {
+      status: GeneralStatus.ACTIVE,
+      account: {
+        userId
+      },
+    }
+
+    query.positionStatus && (where.positionStatus = query.positionStatus);
+
     const positions = await this.prismaService.position.findMany({
       include: {
         account: true,
         ticker: true
       },
-      where: {
-        account: {
-          userId
-        }
-      }
-    });
+      where
+    })
 
     return positions.map(position => ({
       id: position.id,
@@ -73,7 +79,9 @@ export class PositionService {
         id: position.ticker.id,
         symbol: position.ticker.symbol,
         price: position.ticker.price
-      }
+      },
+      positionStatus: position.positionStatus,
+      status: position.status
     }))
   }
 

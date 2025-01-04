@@ -1,3 +1,5 @@
+import { GeneralStatus, PositionStatus } from '@prisma/client';
+
 export interface CreatePositionResponse {
   id: string;
   price: number;
@@ -23,6 +25,8 @@ export type FindAllPositionsResponse = Array<{
     symbol: string;
     price: number;
   };
+  status: GeneralStatus;
+  positionStatus: PositionStatus;
 }>
 
 export interface DeletePositionResponse {
